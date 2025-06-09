@@ -4,15 +4,58 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
+  url      = "file:./dev.db"
 }
 
-model ContratoArriendo {
-  id            Int      @id @default(autoincrement())
-  arrendatario  String
-  correo        String
-  valorBase     Float
-  fechaInicio   DateTime
-  fechaReajuste DateTime
-  creadoEn      DateTime @default(now())
+model Propietario {
+  id           Int          @id @default(autoincrement())
+  nombre       String
+  correo       String
+  telefono     String
+  propiedades  Propiedad[]
+}
+
+model Propiedad {
+  id             Int          @id @default(autoincrement())
+  direccion      String
+  comision       Float        // comisión para el corredor
+  descuento      Float?       // descuento si aplica
+  cargos         Json?        // ejemplo: [{ "nombre": "Mantención", "monto": 15000 }]
+  glosaCargos    String?      // explicación general si corresponde
+  propietario    Propietario  @relation(fields: [propietarioId], references: [id])
+  propietarioId  Int
+  contratos      Contrato[]
+}
+
+model Arrendatario {
+  id        Int        @id @default(autoincrement())
+  nombre    String
+  correo    String
+  telefono  String
+  contratos Contrato[]
+}
+
+model Contrato {
+  id                Int           @id @default(autoincrement())
+  propiedad         Propiedad     @relation(fields: [propiedadId], references: [id])
+  propiedadId       Int
+  arrendatario      Arrendatario  @relation(fields: [arrendatarioId], references: [id])
+  arrendatarioId    Int
+  fechaInicio       DateTime
+  valorBase         Int
+  valorActual       Int
+  glosaCobroMes     String?       // editable cada mes si se desea
+  fechaReajuste     DateTime
+  creadoEn          DateTime      @default(now())
+  pagos             Pago[]
+}
+
+model Pago {
+  id           Int       @id @default(autoincrement())
+  contrato     Contrato  @relation(fields: [contratoId], references: [id])
+  contratoId   Int
+  fechaPago    DateTime
+  monto        Int
+  enviado      Boolean   @default(false)
+  confirmado   Boolean   @default(false)
 }
