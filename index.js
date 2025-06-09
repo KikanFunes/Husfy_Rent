@@ -1,11 +1,13 @@
 const express = require('express');
+const cors = require('cors');
 const { PrismaClient } = require('@prisma/client');
 
 const app = express();
 const prisma = new PrismaClient();
 const PORT = 3000;
 
-app.use(express.json());
+app.use(express.json()); // 👈 habilita peticiones desde el frontend
+app.use(cors());
 
 // Ruta base para comprobar que el servidor funciona
 app.get('/', (req, res) => {
@@ -52,7 +54,7 @@ app.post('/contratos', async (req, res) => {
         fechaReajuste,
         valorBase,
         valorActual, // 👈 Este campo es obligatorio en tu modelo Prisma
-        glosaCobro,
+        glosaCobroMes,
         arrendatario: {
           connect: { id: arrendatarioId }
         },

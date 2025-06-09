@@ -1,16 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 function App() {
-  // Simulación de datos (luego esto vendrá del backend)
-  const propiedades = [
-    { id: 1, direccion: "Los Laureles 123", comision: 10, descuento: 0, propietario: { nombre: "Pedro Propietario", correo: "pedro@example.com" } },
-    { id: 2, direccion: "Av. Chile 456", comision: 8, descuento: 20000, propietario: { nombre: "Ana Dueña", correo: "ana@example.com" } }
-  ];
+  const [propiedades, setPropiedades] = useState([]);
+  const [arrendatarios, setArrendatarios] = useState([]);
 
-  const arrendatarios = [
-    { id: 1, nombre: "Carlos Arrendatario", correo: "carlos@example.com" },
-    { id: 2, nombre: "Laura Inquilina", correo: "laura@example.com" }
-  ];
+  useEffect(() => {
+    fetch('http://localhost:3000/propiedades')
+      .then(res => res.json())
+      .then(data => setPropiedades(data))
+      .catch(err => console.error('Error al cargar propiedades:', err));
+
+    fetch('http://localhost:3000/arrendatarios')
+      .then(res => res.json())
+      .then(data => setArrendatarios(data))
+      .catch(err => console.error('Error al cargar arrendatarios:', err));
+  }, []);
 
   const [form, setForm] = useState({
     propiedadId: '',
@@ -26,8 +30,42 @@ function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Formulario listo para enviar:', form);
-    alert('Este es solo un formulario de prueba por ahora 🧪');
+
+    try {
+      const response = await fetch('http://localhost:3000/contratos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          propiedadId: parseInt(form.propiedadId),
+          arrendatarioId: parseInt(form.arrendatarioId),
+          valorBase: parseInt(form.valorBase),
+          valorActual: parseInt(form.valorBase),
+          glosaCobroMes: form.glosaCobroMes || null,
+          fechaInicio: form.fechaInicio
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al guardar contrato');
+      }
+
+      const data = await response.json();
+      alert('Contrato creado con éxito ✅');
+      console.log(data);
+
+      setForm({
+        propiedadId: '',
+        arrendatarioId: '',
+        valorBase: '',
+        glosaCobroMes: '',
+        fechaInicio: ''
+      });
+    } catch (error) {
+      console.error('Error en la creación del contrato:', error);
+      alert('Ocurrió un error al crear el contrato ❌');
+    }
   };
 
   const propiedadSeleccionada = propiedades.find(p => p.id === parseInt(form.propiedadId));
@@ -84,7 +122,7 @@ function App() {
           onChange={handleChange}
         />
 
-        <input
+                <input
           type="date"
           name="fechaInicio"
           className="w-full mb-6 p-2 border rounded"
@@ -102,3 +140,4 @@ function App() {
 }
 
 export default App;
+
