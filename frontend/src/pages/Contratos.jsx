@@ -43,3 +43,11 @@ function Contratos() {
                 {new Date(contrato.fechaReajuste).toLocaleDateString()}
               </td>
             </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+export default Contratos;
