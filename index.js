@@ -42,7 +42,7 @@ app.get('/arrendatarios', async (req, res) => {
 
 // ✅ Crear un nuevo contrato
 app.post('/contratos', async (req, res) => {
-  const { arrendatarioId, propiedadId, fechaInicio, valorBase, valorActual, glosaCobro } = req.body;
+  const { arrendatarioId, propiedadId, fechaInicio, valorBase, valorActual, glosaCobroMes } = req.body;
 
   const fechaReajuste = new Date(fechaInicio);
   fechaReajuste.setMonth(fechaReajuste.getMonth() + 6);
@@ -73,4 +73,24 @@ app.post('/contratos', async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});
+
+// ✅ Obtener todos los contratos con propiedad y arrendatario
+app.get('/contratos', async (req, res) => {
+  try {
+    const contratos = await prisma.contrato.findMany({
+      include: {
+        arrendatario: true,
+        propiedad: {
+          include: {
+            propietario: true
+          }
+        }
+      }
+    });
+    res.json(contratos);
+  } catch (error) {
+    console.error('Error al obtener contratos:', error);
+    res.status(500).json({ error: 'Error al obtener contratos' });
+  }
 });
