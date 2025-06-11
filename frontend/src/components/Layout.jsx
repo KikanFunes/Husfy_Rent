@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, Link } from 'react-router-dom';
 
 function Layout() {
   return (
@@ -7,7 +7,9 @@ function Layout() {
       <aside className="w-64 bg-gray-800 text-white p-6">
         <h2 className="text-2xl font-bold mb-6">Panel de Control</h2>
         <nav className="space-y-4">
-          <a href="/" className="block hover:text-blue-300">Contratos</a>
+          <Link to="/" className="block hover:text-blue-300">Home</Link>
+          <Link to="/contratos" className="block hover:text-blue-300">Contratos</Link>
+          <Link to="/nuevo-contrato" className="block hover:text-blue-300">Crear Contrato</Link>
           {/* Aquí puedes agregar más links como Propiedades, Arrendatarios, etc. */}
         </nav>
       </aside>
